@@ -31,6 +31,21 @@ jobs:
         with:
           channel: 'stable'
 
+      # ---------- FIXES ----------
+      - name: Kill Java locks
+        run: |
+          taskkill /F /IM java.exe || echo "No java running"
+
+      - name: Disable Gradle parallel execution
+        run: echo "org.gradle.parallel=false" >> android/gradle.properties
+
+      - name: Disable R8 (Windows CI Fix)
+        run: echo "android.enableR8=false" >> android/gradle.properties
+
+      - name: Clean Project
+        run: flutter clean
+      # ----------------------------
+
       - name: Flutter Pub Get
         run: flutter pub get
 
@@ -47,4 +62,3 @@ jobs:
             build\app\outputs\apk\release\*
             build\app\outputs\bundle\release\app-release.aab
           tag: v1.0.${{ github.run_number }}
-          # token: ${{ secrets.TOKEN }}

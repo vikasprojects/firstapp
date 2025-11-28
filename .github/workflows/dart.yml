@@ -1,40 +1,50 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Dart
+name: "Build & Release (Windows)"
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - master
+      - develop
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - master
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build APK & AAB (Windows)
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Install Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
 
       - name: Flutter Pub Get
         run: flutter pub get
 
-      - name: Analyze
-        run: flutter analyze
+      - name: Build APK (Split ABI)
+        run: flutter build apk --release --split-per-abi
 
-      - name: Test
-        run: flutter test
+      - name: Build AppBundle (AAB)
+        run: flutter build appbundle --release
 
       - name: Upload to GitHub Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
             build\app\outputs\apk\release\*
+            build\app\outputs\bundle\release\app-release.aab
+          tag: v1.0.${{ github.run_number }}
+          token: ${{ secrets.TOKEN }}

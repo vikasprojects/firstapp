@@ -34,7 +34,7 @@ jobs:
         run: flutter test
 
       - name: Upload to GitHub Release
-      uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1
         with:
           artifacts: |
             build\app\outputs\apk\release\*
